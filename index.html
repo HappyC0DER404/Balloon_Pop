@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            text-align: center;
+            background-color: #cce7ff;
+            overflow: hidden;
+        }
+        .gamecontainer{
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        #score{
+            position: absolute;
+            top: 10px ;
+            left: 10px;
+            font-size: 24px;
+        }
+        #level{
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+        }
+        #gameover{
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            font-size: 50px;
+            display: none;
+        }
+        #restartbtn{
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 20px;
+            border-radius: 10px;
+            background-color: #007bff;
+            color: white;
+
+        }
+        #restartbtn:hover{
+            background-color: #0056b3;
+            
+        }
+        .balloon{
+            position: absolute;
+            height: 80px;
+            width: 60px;
+            background: red;
+            border-radius: 50% 50% 50% 50%/ 60% 60% 80% 80%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="score">Score: 0</div>
+    <div id="level">Level: 1</div>
+    <div class="gamecontainer" id="gamecontainer"></div>
+    <div id="gameover">
+        <p>Game Over!</p>
+        <button id="restartbtn" onclick="restartgame()">Reset</button>
+    </div>
+
+    <audio id="popsound" src="./balloonPop.mp3"></audio>
+    <script>
+        const gamecontainer= document.getElementById("gamecontainer")
+        const scoredisplay= document.getElementById("score")
+        const leveldisplay= document.getElementById("level")
+        const gameoverdisplay= document.getElementById("gameover")
+        const popsound= document.getElementById("popsound")
+
+        let score= 0
+        let level= 1
+        let gameactive= true
+        let ballooninterval
+        let balloonspeed= 2
+        let spawnrate= 1000
+
+
+        function createballoon() {
+
+            if(!gameactive)return
+
+            const balloon= document.createElement("div")
+            balloon.classList.add("balloon")
+
+            balloon.style.left= Math.random()*90+"%"
+            balloon.style.bottom= "-100px"
+
+            balloon.style.background=`hsl(${Math.random() *360}, 100%,50%)`
+            
+        gamecontainer.appendChild(balloon)
+        let moveinterval= setInterval(()=>{
+            if(!gameactive){
+                clearInterval(moveinterval)
+                balloon.remove()
+
+                return;
+
+            }
+            let currentbottom = parseInt(window.getComputedStyle(balloon).bottom)
+            if(currentbottom >= window.innerHeight){
+                clearInterval(moveinterval)
+                gamecontainer.removeChild(balloon)
+                if(gameactive){
+                   gameover() 
+                }
+            }else{
+                balloon.style.bottom= currentbottom + balloonspeed + 'px'
+            }
+         },20 )
+
+
+        balloon.addEventListener("click", () =>{
+            if(!gameactive) return
+            score ++;
+            scoredisplay.innerText = `Score : ${score} `
+              clearInterval(moveinterval)
+                balloon.remove()
+                popsound.play()
+
+
+        })
+
+
+
+        }
+       
+        function startgame() {
+            ballooninterval=setInterval(createballoon,spawnrate)
+        }
+
+        startgame()
+
+        function gameover() {
+            gameactive= false;
+            gameoverdisplay.style.display="block"
+            clearInterval(ballooninterval)
+        }
+
+        function restartgame() {
+            score=0
+            level=1
+            gameactive=true
+             balloonspeed=2
+            spawnrate= 1000
+            scoredisplay.textContent="Score:  0"
+            leveldisplay.textContent="Level:  0"
+            gameoverdisplay.style.display="none"
+
+            document.querySelectorAll(".balloon").forEach((balloon)=>balloon.remove())
+             startgame()
+            
+        }
+    </script>
+</body>
+</html>
