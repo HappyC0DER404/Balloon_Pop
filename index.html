@@ -57,6 +57,9 @@
             border-radius: 50% 50% 50% 50%/ 60% 60% 80% 80%;
             cursor: pointer;
         }
+        .balloon:hover{
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body>
@@ -67,7 +70,7 @@
         <p>Game Over!</p>
         <button id="restartbtn" onclick="restartgame()">Reset</button>
     </div>
-
+    <audio id="game-over" src="./game-over.mp3"></audio>
     <audio id="popsound" src="./balloonPop.mp3"></audio>
     <script>
         const gamecontainer= document.getElementById("gamecontainer")
@@ -75,6 +78,7 @@
         const leveldisplay= document.getElementById("level")
         const gameoverdisplay= document.getElementById("gameover")
         const popsound= document.getElementById("popsound")
+        const gameoversound= document.getElementById("game-over")
 
         let score= 0
         let level= 1
@@ -111,6 +115,7 @@
                 gamecontainer.removeChild(balloon)
                 if(gameactive){
                    gameover() 
+                   gameoversound.play()
                 }
             }else{
                 balloon.style.bottom= currentbottom + balloonspeed + 'px'
@@ -126,7 +131,9 @@
                 balloon.remove()
                 popsound.play()
 
-
+                if(score % 10 ===0){
+                    levelup()
+                }
         })
 
 
@@ -158,6 +165,13 @@
             document.querySelectorAll(".balloon").forEach((balloon)=>balloon.remove())
              startgame()
             
+        }
+
+        function levelup() {
+            level++ ;
+            leveldisplay.innerText = `Level : ${level}`
+            balloonspeed+=0.5
+            spawnrate-=50
         }
     </script>
 </body>
